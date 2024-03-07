@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -13,26 +13,45 @@ import ConsultasPage from "./pages/ConsultasPage";
 import MantenimientoPage from "./pages/MantenimientosPage";
 import MantenimientoEditPage from "./pages/MantenimientosEditPage";
 import Layout from "./Layout";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 const App = () => {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [severity, setSeverity] = useState("success");
+
+  const handleSnackbar = (msg, severity) => {
+    setMessage(msg);
+    setSeverity(severity);
+    setOpen(true);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
+
   return (
     <Router>
       <Routes>
         <Route
-          path="/"
+          path="/Home"
           element={
             <Layout>
               <HomePage />
             </Layout>
           }
         />
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login />} />
         <Route path="/register" element={<Registro />} />
         <Route
           path="/consultas"
           element={
             <Layout>
-              <ConsultasPage />
+              <ConsultasPage handleSnackbar={handleSnackbar} />
             </Layout>
           }
         />
@@ -40,7 +59,7 @@ const App = () => {
           path="/mantenimientos"
           element={
             <Layout>
-              <MantenimientoPage />
+              <MantenimientoPage handleSnackbar={handleSnackbar} />
             </Layout>
           }
         />
@@ -48,7 +67,7 @@ const App = () => {
           path="/mantenimientos/:id"
           element={
             <Layout>
-              <MantenimientoEditPage />
+              <MantenimientoEditPage handleSnackbar={handleSnackbar} />
             </Layout>
           }
         />
@@ -64,6 +83,17 @@ const App = () => {
           }
         />
       </Routes>
+
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert
+          onClose={handleClose}
+          severity={severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
     </Router>
   );
 };

@@ -86,13 +86,13 @@ export default function Login() {
         userData
       );
       console.log("response", response);
-      navigate("/");
+      navigate("/Home");
 
-      localStorage.setItem("jwt", response.data.jwt);
-      localStorage.setItem("username", response.data.user.username);
+      localStorage.setItem("jwt", response.data.access_token);
+      localStorage.setItem("username", response.data.username);
 
-      setJWT(response.data.jwt);
-      setUser(response.data.user.username);
+      setJWT(response.data.access_token);
+      setUser(response.data.username);
     } catch (error) {
       // En caso de error, maneja el error adecuadamente
       console.error("Error al registrar usuario:", error);
@@ -137,7 +137,7 @@ export default function Login() {
               required
               fullWidth
               id="email"
-              label="Email Address"
+              label="Username"
               name="email"
               autoComplete="email"
               autoFocus
@@ -181,11 +181,11 @@ export default function Login() {
                   Forgot password?
                 </Link>
               </Grid> */}
-              <Grid item>
+              {/* <Grid item>
                 <Link href="/register" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
-              </Grid>
+              </Grid> */}
             </Grid>
           </Box>
         </Box>

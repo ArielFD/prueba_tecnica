@@ -15,10 +15,13 @@ import {
   IconButton,
   tableCellClasses,
   styled,
+  Box,
 } from "@mui/material";
 import { Add, ArrowBack, Delete, Edit, Search } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -30,13 +33,25 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-const ConsultasPage = () => {
+const ConsultasPage = ({ handleSnackbar }) => {
   const navigate = useNavigate();
   const [clientes, setClientes] = useState([]);
   const [filtroNombre, setFiltroNombre] = useState("");
   const [filtroIdentificacion, setFiltroIdentificacion] = useState("");
   const jwt = localStorage.getItem("jwt");
+  const [open, setOpen] = React.useState(false);
 
+  const handleClick = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
+  };
   const config = {
     headers: {
       Authorization: `Bearer ${jwt}`,
@@ -50,8 +65,11 @@ const ConsultasPage = () => {
 
   async function getAllClients() {
     try {
-      const response = await axios.get("http://localhost:1337/api/clientes");
-      return response.data.data;
+      const response = await axios.get(
+        "https://backend-nest-alpha.vercel.app/clientes"
+      );
+      console.log(response);
+      return response.data;
     } catch (error) {
       console.log("Error obteniendo lista de clientes", error);
     }
@@ -63,27 +81,25 @@ const ConsultasPage = () => {
 
   const handleEliminarCliente = async (id) => {
     await axios
-      .delete(`http://localhost:1337/api/clientes/${id}`, config)
+      .delete(`http://localhost:3000/clientes/${id}`, config)
       .then((response) => {
         console.log(response);
+        handleSnackbar("Cliente eliminado", "success");
         getAllClients().then((response) => {
           setClientes(response);
         });
       })
       .catch((error) => {
+        handleSnackbar("Error al eliminar el cliente", "error");
         console.log(error);
       });
   };
 
   const filtrarDatos = (fila) => {
     return (
-      (fila.attributes.nombre
-        .toLowerCase()
-        .includes(filtroNombre.toLowerCase()) ||
-        fila.attributes.apellidos
-          .toLowerCase()
-          .includes(filtroNombre.toLowerCase())) &&
-      fila.id.toString().includes(filtroIdentificacion)
+      (fila.nombre.toLowerCase().includes(filtroNombre.toLowerCase()) ||
+        fila.apellidos.toLowerCase().includes(filtroNombre.toLowerCase())) &&
+      fila.identificacion.toString().includes(filtroIdentificacion)
     );
   };
 
@@ -129,7 +145,7 @@ const ConsultasPage = () => {
             <Button
               variant="contained"
               onClick={() => {
-                navigate("/");
+                navigate("/Home");
               }}
               startIcon={<ArrowBack />}
             >
@@ -192,17 +208,19 @@ const ConsultasPage = () => {
             </TableHead>
             <TableBody>
               {clientes.filter(filtrarDatos).map((fila) => (
-                <TableRow key={fila.id}>
-                  <StyledTableCell align="center">{fila.id}</StyledTableCell>
+                <TableRow key={fila._id}>
+                  <StyledTableCell align="center">
+                    {fila.identificacion}
+                  </StyledTableCell>
                   <StyledTableCell>
-                    {fila.attributes.nombre + " " + fila.attributes.apellidos}
+                    {fila.nombre + " " + fila.apellidos}
                   </StyledTableCell>
                   <StyledTableCell align="center">
                     <IconButton
                       variant="contained"
                       color="primary"
                       onClick={() => {
-                        handleEditarCliente(fila.id);
+                        handleEditarCliente(fila._id);
                       }}
                     >
                       <Edit />
@@ -211,7 +229,7 @@ const ConsultasPage = () => {
                       variant="contained"
                       color="primary"
                       onClick={() => {
-                        handleEliminarCliente(fila.id);
+                        handleEliminarCliente(fila._id);
                       }}
                     >
                       <Delete />

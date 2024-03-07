@@ -10,6 +10,7 @@ import {
   TextField,
   Typography,
   FormControl,
+  Avatar,
 } from "@mui/material";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -21,7 +22,7 @@ import axios from "axios";
 import { Box } from "@mui/system";
 import dayjs from "dayjs";
 
-const MantenimientoPage = () => {
+const MantenimientoPage = ({ handleSnackbar }) => {
   const navigate = useNavigate();
   const jwt = localStorage.getItem("jwt");
   const config = {
@@ -34,6 +35,21 @@ const MantenimientoPage = () => {
   const [genero, setGenero] = React.useState("");
   const [fechaNacimiento, setFechaNacimiento] = useState(null);
   const [fechaAfiliacion, setFechaAfiliacion] = useState(null);
+
+  const [imageData, setImageData] = useState(null);
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setImageData(reader.result);
+    };
+
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleFechaNacimiento = (fecha) => {
     setFechaNacimiento(fecha);
@@ -69,19 +85,31 @@ const MantenimientoPage = () => {
       default:
         break;
     }
+
+    let nacimiento = null;
+    if (dayjs(fechaNacimiento, "YYYY-MM-DD").isValid()) {
+      nacimiento = dayjs(fechaNacimiento).format("YYYY-MM-DD");
+    }
+
+    let afiliacion = null;
+    if (dayjs(fechaNacimiento, "YYYY-MM-DD").isValid()) {
+      afiliacion = dayjs(fechaAfiliacion).format("YYYY-MM-DD");
+    }
+
     const userData = {
-      data: {
-        nombre: data.get("Nombre"),
-        apellidos: data.get("Apellidos"),
-        identificacion: data.get("Identificacion"),
-        telefonoCelular: data.get("Telefono"),
-        otroTelefono: data.get("TelefonoO"),
-        direccion: data.get("Direccion"),
-        fNacimiento: dayjs(fechaNacimiento).format("YYYY-MM-DD"),
-        fAfiliacion: dayjs(fechaAfiliacion).format("YYYY-MM-DD"),
-        sexo: sexo,
-        resenaPersonal: data.get("Reseña"),
-      },
+      nombre: data.get("Nombre"),
+      apellidos: data.get("Apellidos"),
+      identificacion: data.get("Identificacion"),
+      telefonoCelular: data.get("Telefono"),
+      otroTelefono: data.get("TelefonoO"),
+      direccion: data.get("Direccion"),
+      fNacimiento: nacimiento,
+      fAfiliacion: afiliacion,
+      sexo: sexo,
+      resenaPersonal: data.get("Reseña"),
+      imagen: imageData,
+      interesFK: interes,
+      usuarioId: "",
     };
     // console.log(userData);
     agregarCliente(userData, config);
@@ -91,18 +119,17 @@ const MantenimientoPage = () => {
     try {
       console.log(userData, header);
       const response = await axios.post(
-        "http://localhost:1337/api/clientes",
-        userData,
-        header
+        "https://backend-nest-alpha.vercel.app/clientes",
+        userData
       );
       console.log("response", response);
+      handleSnackbar("Cliente agregado", "success");
       navigate("/consultas");
-      // Devuelve la respuesta del servidor
       return response.data;
     } catch (error) {
-      // En caso de error, maneja el error adecuadamente
+      handleSnackbar("Error al registrar cliente", "error");
       console.error("Error al registrar cliente:", error);
-      throw error; // Puedes lanzar el error para que sea manejado por la capa superior
+      throw error;
     }
   }
 
@@ -125,12 +152,26 @@ const MantenimientoPage = () => {
           }}
         >
           <Grid item>
-            <Typography
-              variant="h4"
-              sx={{ textAlign: "center", fontFamily: "bold" }}
-            >
-              Mantenimientos de clientes
-            </Typography>
+            <Box display="flex" alignItems="left">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ display: "none" }}
+                id="image-upload"
+              />
+              <label htmlFor="image-upload">
+                <Button  component="span">
+                  <Avatar src={imageData} />
+                </Button>
+              </label>
+              <Typography
+                variant="h4"
+                sx={{ textAlign: "center", fontFamily: "bold" }}
+              >
+                Mantenimientos de clientes
+              </Typography>
+            </Box>
           </Grid>
           <Grid item>
             <Button
@@ -156,13 +197,7 @@ const MantenimientoPage = () => {
             </Button>
           </Grid>
         </Grid>
-        <Box
-          component="form"
-          id="miFormulario"
-          noValidate
-          onSubmit={handleSubmit}
-          sx={{ mt: 3 }}
-        >
+        <form id="miFormulario" onSubmit={handleSubmit} sx={{ mt: 3 }}>
           <Grid container spacing={2}>
             <Grid item xs={4}>
               <TextField
@@ -171,6 +206,7 @@ const MantenimientoPage = () => {
                 id="Identificacion"
                 name="Identificacion"
                 fullWidth
+                required
               />
             </Grid>
             <Grid item xs={4}>
@@ -180,6 +216,8 @@ const MantenimientoPage = () => {
                 id="Nombre"
                 name="Nombre"
                 fullWidth
+                required
+                // error={nombreError}
               />
             </Grid>
             <Grid item xs={4}>
@@ -189,6 +227,7 @@ const MantenimientoPage = () => {
                 id="Apellidos"
                 name="Apellidos"
                 fullWidth
+                required
               />
             </Grid>
             <Grid item xs={4} sx={{ mt: 1 }}>
@@ -259,9 +298,9 @@ const MantenimientoPage = () => {
                   label="Interes"
                   onChange={handleChangeInteres}
                 >
-                  <MenuItem value={10}>Ten</MenuItem>
-                  <MenuItem value={20}>Twenty</MenuItem>
-                  <MenuItem value={30}>Thirty</MenuItem>
+                  <MenuItem value={"Musica"}>Musica</MenuItem>
+                  <MenuItem value={"Leer"}>Leer</MenuItem>
+                  <MenuItem value={"Trabajar"}>Trabajar</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -284,7 +323,7 @@ const MantenimientoPage = () => {
               />
             </Grid>
           </Grid>
-        </Box>
+        </form>
       </Paper>
     </Container>
   );

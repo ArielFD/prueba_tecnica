@@ -77,7 +77,7 @@ export default function AppBarComp({
             {usuario}
           </Typography>
         </div>
-        <Link to="/login" style={{ textDecoration: "none", color: "white" }}>
+        <Link to="/" style={{ textDecoration: "none", color: "white" }}>
           <IconButton onClick={cleanUserRegister} color="inherit">
             <LogoutIcon />
           </IconButton>
