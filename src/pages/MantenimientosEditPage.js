@@ -162,7 +162,7 @@ const MantenimientoPage = ({ handleSnackbar }) => {
     try {
       console.log(userData, header);
       const response = await axios.put(
-        `https://backend-nest-alpha.vercel.app/clientes/${id}`,
+        `https://backend-nest-iota.vercel.app/clientes/${id}`,
         userData
       );
       console.log("response", response);
@@ -183,7 +183,7 @@ const MantenimientoPage = ({ handleSnackbar }) => {
   async function getClientById(id) {
     try {
       const response = await axios.get(
-        `https://backend-nest-alpha.vercel.app/clientes/${id}`,
+        `https://backend-nest-iota.vercel.app/clientes/${id}`,
         config
       );
       console.log("response", response);

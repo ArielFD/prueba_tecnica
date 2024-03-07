@@ -66,7 +66,7 @@ const ConsultasPage = ({ handleSnackbar }) => {
   async function getAllClients() {
     try {
       const response = await axios.get(
-        "https://backend-nest-alpha.vercel.app/clientes"
+        "https://backend-nest-iota.vercel.app/clientes"
       );
       console.log(response);
       return response.data;
