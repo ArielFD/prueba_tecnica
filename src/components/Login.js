@@ -63,7 +63,7 @@ export default function Login() {
     const data = new FormData(event.currentTarget);
 
     const userData = {
-      identifier: data.get("email"),
+      username: data.get("email"),
       password: data.get("password"),
     };
 
@@ -82,7 +82,7 @@ export default function Login() {
   async function login(userData) {
     try {
       const response = await axios.post(
-        "http://localhost:1337/api/auth/local",
+        "https://backend-nest-alpha.vercel.app/auth/login",
         userData
       );
       console.log("response", response);
