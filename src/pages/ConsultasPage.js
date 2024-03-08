@@ -15,13 +15,10 @@ import {
   IconButton,
   tableCellClasses,
   styled,
-  Box,
 } from "@mui/material";
 import { Add, ArrowBack, Delete, Edit, Search } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import { getAllClients, handleEliminarCliente } from "../hooks/clientes";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -38,61 +35,15 @@ const ConsultasPage = ({ handleSnackbar }) => {
   const [clientes, setClientes] = useState([]);
   const [filtroNombre, setFiltroNombre] = useState("");
   const [filtroIdentificacion, setFiltroIdentificacion] = useState("");
-  const jwt = localStorage.getItem("jwt");
-  const [open, setOpen] = React.useState(false);
 
-  const handleClick = () => {
-    setOpen(true);
-  };
-
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpen(false);
-  };
-  const config = {
-    headers: {
-      Authorization: `Bearer ${jwt}`,
-    },
-  };
   useEffect(() => {
     getAllClients().then((response) => {
       setClientes(response);
     });
   }, []);
 
-  async function getAllClients() {
-    try {
-      const response = await axios.get(
-        "https://backend-nest-iota.vercel.app/clientes"
-      );
-      console.log(response);
-      return response.data;
-    } catch (error) {
-      console.log("Error obteniendo lista de clientes", error);
-    }
-  }
-
   const handleEditarCliente = (id) => {
     navigate(`/mantenimientos/${id}`);
-  };
-
-  const handleEliminarCliente = async (id) => {
-    await axios
-      .delete(`http://localhost:3000/clientes/${id}`, config)
-      .then((response) => {
-        console.log(response);
-        handleSnackbar("Cliente eliminado", "success");
-        getAllClients().then((response) => {
-          setClientes(response);
-        });
-      })
-      .catch((error) => {
-        handleSnackbar("Error al eliminar el cliente", "error");
-        console.log(error);
-      });
   };
 
   const filtrarDatos = (fila) => {
@@ -229,7 +180,12 @@ const ConsultasPage = ({ handleSnackbar }) => {
                       variant="contained"
                       color="primary"
                       onClick={() => {
-                        handleEliminarCliente(fila._id);
+                        handleEliminarCliente(
+                          fila._id,
+                          handleSnackbar,
+                          getAllClients,
+                          setClientes
+                        );
                       }}
                     >
                       <Delete />

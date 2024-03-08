@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 
 export const secondaryListItems = (
   <React.Fragment>
-    <Link to="/" style={{ textDecoration: "none", color: "black" }}>
+    <Link to="/Home" style={{ textDecoration: "none", color: "black" }}>
       <ListItemButton>
         <ListItemIcon>
           <RoofingIcon color="primary" />

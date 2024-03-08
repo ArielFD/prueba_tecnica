@@ -1,4 +1,4 @@
-import { ArrowBack, Edit, Save } from "@mui/icons-material";
+import { ArrowBack, Edit } from "@mui/icons-material";
 import {
   Button,
   Container,
@@ -18,9 +18,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
 import { Box } from "@mui/system";
 import dayjs from "dayjs";
+import { actualizarCliente, getClientById } from "../hooks/clientes";
 
 const MantenimientoPage = ({ handleSnackbar }) => {
   const navigate = useNavigate();
@@ -47,8 +47,6 @@ const MantenimientoPage = ({ handleSnackbar }) => {
       reader.readAsDataURL(file);
     }
   };
-
-  const [cliente, setCliente] = useState({});
 
   const [Identificacion, setIdentificacion] = React.useState("");
   const [Nombre, setNombre] = React.useState("");
@@ -154,91 +152,27 @@ const MantenimientoPage = ({ handleSnackbar }) => {
       resenaPersonal: data.get("Reseña"),
       imagen: imageData,
     };
-    // console.log(userData);
-    actualizarCliente(id, userData, config);
+    
+    actualizarCliente(id, userData, config, handleSnackbar, navigate);
   };
 
-  async function actualizarCliente(id, userData, header) {
-    try {
-      console.log(userData, header);
-      const response = await axios.put(
-        `https://backend-nest-iota.vercel.app/clientes/${id}`,
-        userData
-      );
-      console.log("response", response);
-      handleSnackbar("Cliente editado", "success");
-      navigate("/consultas");
-      return response.data;
-    } catch (error) {
-      handleSnackbar("Error al editar cliente", "error");
-      console.error("Error al editar cliente:", error);
-      throw error;
-    }
-  }
-
   useEffect(() => {
-    getClientById(id);
+    getClientById(
+      id,
+      setIdentificacion,
+      setNombre,
+      setApellidos,
+      setImageData,
+      setGenero,
+      setFechaNacimiento,
+      setFechaAfiliacion,
+      setTelefono,
+      setTelefonoO,
+      setInteres,
+      setDireccion,
+      setReseña
+    );
   }, [id]);
-
-  async function getClientById(id) {
-    try {
-      const response = await axios.get(
-        `https://backend-nest-iota.vercel.app/clientes/${id}`,
-        config
-      );
-      console.log("response", response);
-      const clienteData = response.data;
-
-      const {
-        identificacion,
-        nombre,
-        apellidos,
-        sexo,
-        fNacimiento,
-        fAfiliacion,
-        telefonoCelular,
-        otroTelefono,
-        interesFK,
-        direccion,
-        resenaPersonal,
-        imagen,
-      } = clienteData;
-
-      setCliente(clienteData);
-      setIdentificacion(identificacion);
-      setNombre(nombre);
-      setApellidos(apellidos);
-      setImageData(imagen);
-      let genero;
-      switch (sexo) {
-        case "M":
-          genero = "Masculino";
-          break;
-        case "F":
-          genero = "Femenino";
-          break;
-        case "O":
-          genero = "Otro";
-          break;
-        default:
-          break;
-      }
-      setGenero(genero);
-
-      setFechaNacimiento(dayjs(fNacimiento, "YYYY/MM/DD"));
-      setFechaAfiliacion(dayjs(fAfiliacion, "YYYY/MM/DD"));
-
-      setTelefono(telefonoCelular);
-      setTelefonoO(otroTelefono);
-      if (interesFK) setInteres(interesFK);
-      setDireccion(direccion);
-      setReseña(resenaPersonal);
-
-      return response.data;
-    } catch (error) {
-      console.log("Error obteniendo lista de clientes", error);
-    }
-  }
 
   return (
     <Container maxWidth="lg" sx={{ mt: 10, mb: 4 }}>

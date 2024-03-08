@@ -11,7 +11,6 @@ import {
 import { secondaryListItems } from "./listItems";
 import MuiDrawer from "@mui/material/Drawer";
 import { styled } from "@mui/material/styles";
-import useAuthStore from "../store/auth_store";
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",

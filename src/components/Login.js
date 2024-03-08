@@ -15,7 +15,6 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/auth_store";
-import { Snackbar } from "@mui/base";
 
 function Copyright(props) {
   return (

@@ -18,9 +18,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { Box } from "@mui/system";
 import dayjs from "dayjs";
+import { agregarCliente } from "../hooks/clientes";
 
 const MantenimientoPage = ({ handleSnackbar }) => {
   const navigate = useNavigate();
@@ -112,26 +112,8 @@ const MantenimientoPage = ({ handleSnackbar }) => {
       usuarioId: "",
     };
     // console.log(userData);
-    agregarCliente(userData, config);
+    agregarCliente(userData, config, handleSnackbar, navigate);
   };
-
-  async function agregarCliente(userData, header) {
-    try {
-      console.log(userData, header);
-      const response = await axios.post(
-        "https://backend-nest-iota.vercel.app/clientes",
-        userData
-      );
-      console.log("response", response);
-      handleSnackbar("Cliente agregado", "success");
-      navigate("/consultas");
-      return response.data;
-    } catch (error) {
-      handleSnackbar("Error al registrar cliente", "error");
-      console.error("Error al registrar cliente:", error);
-      throw error;
-    }
-  }
 
   return (
     <Container maxWidth="lg" sx={{ mt: 10, mb: 4 }}>
